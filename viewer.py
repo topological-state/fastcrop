@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from PySide6.QtCore import QRectF, Qt, Signal
-from PySide6.QtGui import QColor, QKeyEvent, QPen, QPixmap, QPainter
+from PySide6.QtGui import QColor, QKeyEvent, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
     QGraphicsRectItem,
@@ -29,8 +29,6 @@ class CropRectItem(QGraphicsRectItem):
     def set_aspect_ratio(self, ratio: float):
         """Update the aspect ratio and resize accordingly."""
         self.aspect_ratio = ratio
-        # Resize logic will be handled by the viewer when the image is loaded
-        # or when the ratio changes.
 
     def update_size(self, image_width: float, image_height: float):
         """Maximize the rectangle size within the image dimensions."""
@@ -42,8 +40,6 @@ class CropRectItem(QGraphicsRectItem):
             h = image_width / self.aspect_ratio
 
         self.setRect(0, 0, w, h)
-        # Center it initially
-        self.setPos((image_width - w) / 2, (image_height - h) / 2)
 
     def itemChange(self, change, value):
         if change == QGraphicsRectItem.ItemPositionChange and hasattr(
@@ -58,6 +54,20 @@ class CropRectItem(QGraphicsRectItem):
             new_pos.setY(max(0, min(new_pos.y(), img_h - rect_h)))
             return new_pos
         return super().itemChange(change, value)
+
+
+class CropView(QGraphicsView):
+    """Custom GraphicsView to handle key events for the viewer."""
+
+    def __init__(self, scene, parent=None):
+        super().__init__(scene, parent)
+        self.viewer = None
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if self.viewer:
+            self.viewer.keyPressEvent(event)
+        else:
+            super().keyPressEvent(event)
 
 
 class FastCropViewer(QMainWindow):
@@ -78,7 +88,8 @@ class FastCropViewer(QMainWindow):
         self.setWindowTitle("FastCrop")
 
         self.scene = QGraphicsScene()
-        self.view = QGraphicsView(self.scene)
+        self.view = CropView(self.scene)
+        self.view.viewer = self
         self.setCentralWidget(self.view)
 
         self.view.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -101,12 +112,15 @@ class FastCropViewer(QMainWindow):
         if pixmap.isNull():
             return
 
-        # Store current crop state before clearing
+        # Store current crop state and image size before clearing
         prev_rect_pos = None
-        prev_rect_size = None
-        if self.crop_rect:
+        prev_image_size = None
+        if self.pixmap_item and self.crop_rect:
             prev_rect_pos = self.crop_rect.pos()
-            prev_rect_size = (self.crop_rect.rect().width(), self.crop_rect.rect().height())
+            prev_image_size = (
+                self.pixmap_item.pixmap().width(),
+                self.pixmap_item.pixmap().height(),
+            )
 
         self.scene.clear()
         self.pixmap_item = QGraphicsPixmapItem(pixmap)
@@ -114,17 +128,23 @@ class FastCropViewer(QMainWindow):
 
         # Always create a new crop rect since the old one was deleted by scene.clear()
         self.crop_rect = CropRectItem(self.ASPECT_RATIOS[self.current_ratio_idx][0])
-        
-        self.crop_rect.update_size(pixmap.width(), pixmap.height())
-        
-        # Restore position if dimensions match
-        if prev_rect_size and prev_rect_size[0] == pixmap.width() and prev_rect_size[1] == pixmap.height():
-             self.crop_rect.setPos(prev_rect_pos)
+
+        img_w, img_h = pixmap.width(), pixmap.height()
+        self.crop_rect.update_size(img_w, img_h)
+
+        # Restore position if image dimensions match
+        if prev_image_size == (img_w, img_h) and prev_rect_pos:
+            self.crop_rect.setPos(prev_rect_pos)
+        else:
+            # Center it initially
+            rect_w = self.crop_rect.rect().width()
+            rect_h = self.crop_rect.rect().height()
+            self.crop_rect.setPos((img_w - rect_w) / 2, (img_h - rect_h) / 2)
 
         self.scene.addItem(self.crop_rect)
 
         # Constraints for moving the crop rect
-        self.crop_rect.image_size = (pixmap.width(), pixmap.height())
+        self.crop_rect.image_size = (img_w, img_h)
 
         self.view.fitInView(
             self.scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio
