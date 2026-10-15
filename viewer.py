@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from PySide6.QtCore import QRectF, Qt, Signal
-from PySide6.QtGui import QColor, QKeyEvent, QPen, QPixmap
+from PySide6.QtGui import QColor, QKeyEvent, QPen, QPixmap, QPainter
 from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
     QGraphicsRectItem,
@@ -81,7 +81,7 @@ class FastCropViewer(QMainWindow):
         self.view = QGraphicsView(self.scene)
         self.setCentralWidget(self.view)
 
-        self.view.setRenderHint(QGraphicsView.RenderHint.Antialiasing)
+        self.view.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.view.setDragMode(QGraphicsView.DragMode.NoDrag)
 
         self.pixmap_item: QGraphicsPixmapItem | None = None
@@ -101,33 +101,25 @@ class FastCropViewer(QMainWindow):
         if pixmap.isNull():
             return
 
-        prev_size = (
-            (
-                self.pixmap_item.pixmap().width(),
-                self.pixmap_item.pixmap().height(),
-            )
-            if self.pixmap_item
-            else None
-        )
+        # Store current crop state before clearing
+        prev_rect_pos = None
+        prev_rect_size = None
+        if self.crop_rect:
+            prev_rect_pos = self.crop_rect.pos()
+            prev_rect_size = (self.crop_rect.rect().width(), self.crop_rect.rect().height())
 
         self.scene.clear()
         self.pixmap_item = QGraphicsPixmapItem(pixmap)
         self.scene.addItem(self.pixmap_item)
 
-        # Create or update crop rect
-        if self.crop_rect is None:
-            self.crop_rect = CropRectItem(self.ASPECT_RATIOS[self.current_ratio_idx][0])
-        else:
-            self.crop_rect.set_aspect_ratio(
-                self.ASPECT_RATIOS[self.current_ratio_idx][0]
-            )
-
-        # Carry over if dimensions match
-        if prev_size == (pixmap.width(), pixmap.height()):
-            # Keep existing position and size
-            pass
-        else:
-            self.crop_rect.update_size(pixmap.width(), pixmap.height())
+        # Always create a new crop rect since the old one was deleted by scene.clear()
+        self.crop_rect = CropRectItem(self.ASPECT_RATIOS[self.current_ratio_idx][0])
+        
+        self.crop_rect.update_size(pixmap.width(), pixmap.height())
+        
+        # Restore position if dimensions match
+        if prev_rect_size and prev_rect_size[0] == pixmap.width() and prev_rect_size[1] == pixmap.height():
+             self.crop_rect.setPos(prev_rect_pos)
 
         self.scene.addItem(self.crop_rect)
 
