@@ -3,7 +3,7 @@
 `fastcrop` is a simple Python application that provides sequential, interactive cropping of a large number of images.
 Its main use case is to crop images in portrait format taken with smartphones to landscape format used on desktops and laptops, keeping only the most interesting part at an aspect ratio between 1:1 and 16:9.
 
-The user interface consists of an image viewer with scaling and cropping functions invoked via the keyboard.
+The user interface consists of an image viewer with a cropping function invoked via the keyboard.
 Images are loaded one-by-one from a given directory, modified images are saved in a sub-directory named `fastcrop`.
 
 A selection rectangle indicates the region that will be saved.
