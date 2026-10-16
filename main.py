@@ -67,13 +67,21 @@ class FastCropApp:
         """Advance to the next image."""
         if self.current_index < len(self.images) - 1:
             self.current_index += 1
-            self.viewer.load_image(self.images[self.current_index])
+            self.viewer.load_image(
+                self.images[self.current_index],
+                self.current_index,
+                len(self.images),
+            )
 
     def prev_image(self) -> None:
         """Return to the previous image."""
         if self.current_index > 0:
             self.current_index -= 1
-            self.viewer.load_image(self.images[self.current_index])
+            self.viewer.load_image(
+                self.images[self.current_index],
+                self.current_index,
+                len(self.images),
+            )
 
     def save_crop(self, crop_rect, image_path: Path) -> None:
         """Crop, scale, and save the image."""
@@ -114,7 +122,11 @@ class FastCropApp:
         self.discover_images()
 
         self.current_index = 0
-        self.viewer.load_image(self.images[self.current_index])
+        self.viewer.load_image(
+            self.images[self.current_index],
+            self.current_index,
+            len(self.images),
+        )
 
         self.viewer.show()
         sys.exit(self.app.exec())

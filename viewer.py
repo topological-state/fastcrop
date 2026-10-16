@@ -105,7 +105,7 @@ class FastCropViewer(QMainWindow):
         self.image_list: list[Path] = []
         self.current_index = -1
 
-    def load_image(self, path: Path) -> None:
+    def load_image(self, path: Path, index: int = -1, total: int = -1) -> None:
         """Load an image into the viewer."""
         self.current_image_path = path
         pixmap = QPixmap(str(path))
@@ -151,6 +151,13 @@ class FastCropViewer(QMainWindow):
         )
         self.zoom_factor = 1.0
         self.view.setTransform(self.view.transform())  # reset if needed
+
+        # Update window title
+        if index != -1 and total != -1:
+            name = path.name
+            if len(name) > 32:
+                name = f"{name[:16]}...{name[-16:]}"
+            self.setWindowTitle(f"{name} ({index + 1}/{total}) {img_w}x{img_h}")
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """Handle keyboard input for navigation and controls."""
