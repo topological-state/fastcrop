@@ -19,7 +19,9 @@ FastCrop is a simple, interactive Python application designed for the sequential
 | **Enter** | Save crop and move to next image |
 | **$\rightarrow$ (Right Arrow)** | Move to next image without saving |
 | **$\leftarrow$ (Left Arrow)** | Move to previous image without saving |
-| **Num-*** | Cycle aspect ratios (1:1 $\rightarrow$ 4:3 $\rightarrow$ 16:9) |
+| **Home** | Move to first image |
+| **End** | Move to last image |
+| **\*** | Cycle aspect ratios (1:1 $\rightarrow$ 4:3 $\rightarrow$ 16:9) |
 | **+ / =** | Zoom in |
 | **-** | Zoom out |
 

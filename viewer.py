@@ -76,6 +76,8 @@ class FastCropViewer(QMainWindow):
     saveRequested = Signal(QRectF, Path)
     nextRequested = Signal()
     prevRequested = Signal()
+    firstRequested = Signal()
+    lastRequested = Signal()
 
     ASPECT_RATIOS: ClassVar = [
         (1.0, "1:1"),
@@ -167,11 +169,15 @@ class FastCropViewer(QMainWindow):
             self.handle_next()
         elif event.key() == Qt.Key.Key_Left:
             self.handle_prev()
-        elif event.key() == Qt.Key_Asterisk:  # Num-*
+        elif event.key() == Qt.Key.Key_Home:
+            self.handle_first()
+        elif event.key() == Qt.Key.Key_End:
+            self.handle_last()
+        elif event.key() == Qt.Key.Key_Asterisk:  # Num-*
             self.cycle_aspect_ratio()
-        elif event.key() == Qt.Key_Plus or event.key() == Qt.Key_Equal:
+        elif event.key() == Qt.Key.Plus or event.key() == Qt.Key.Equal:
             self.zoom(1.2)
-        elif event.key() == Qt.Key_Minus:
+        elif event.key() == Qt.Key.Minus:
             self.zoom(0.8)
         else:
             super().keyPressEvent(event)
@@ -205,3 +211,11 @@ class FastCropViewer(QMainWindow):
     def handle_prev(self):
         """Move to previous image."""
         self.prevRequested.emit()
+
+    def handle_first(self):
+        """Jump to first image."""
+        self.firstRequested.emit()
+
+    def handle_last(self):
+        """Jump to last image."""
+        self.lastRequested.emit()

@@ -34,6 +34,8 @@ class FastCropApp:
         self.viewer.saveRequested.connect(self.save_crop)
         self.viewer.nextRequested.connect(self.next_image)
         self.viewer.prevRequested.connect(self.prev_image)
+        self.viewer.firstRequested.connect(self.first_image)
+        self.viewer.lastRequested.connect(self.last_image)
 
     def resolve_directory(self) -> None:
         """Determine the source directory from CLI or dialog."""
@@ -77,6 +79,26 @@ class FastCropApp:
         """Return to the previous image."""
         if self.current_index > 0:
             self.current_index -= 1
+            self.viewer.load_image(
+                self.images[self.current_index],
+                self.current_index,
+                len(self.images),
+            )
+
+    def first_image(self) -> None:
+        """Jump to the first image."""
+        if self.current_index != 0:
+            self.current_index = 0
+            self.viewer.load_image(
+                self.images[self.current_index],
+                self.current_index,
+                len(self.images),
+            )
+
+    def last_image(self) -> None:
+        """Jump to the last image."""
+        if self.current_index < len(self.images) - 1:
+            self.current_index = len(self.images) - 1
             self.viewer.load_image(
                 self.images[self.current_index],
                 self.current_index,
