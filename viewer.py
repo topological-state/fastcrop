@@ -173,11 +173,11 @@ class FastCropViewer(QMainWindow):
             self.handle_first()
         elif event.key() == Qt.Key.Key_End:
             self.handle_last()
-        elif event.key() == Qt.Key.Key_Asterisk:  # Num-*
+        elif event.key() == Qt.Key.Key_Asterisk:
             self.cycle_aspect_ratio()
-        elif event.key() == Qt.Key.Plus or event.key() == Qt.Key.Equal:
+        elif event.key() == Qt.Key.Key_Plus or event.key() == Qt.Key.Key_Equal:
             self.zoom(1.2)
-        elif event.key() == Qt.Key.Minus:
+        elif event.key() == Qt.Key.Key_Minus:
             self.zoom(0.8)
         else:
             super().keyPressEvent(event)
