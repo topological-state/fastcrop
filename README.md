@@ -62,7 +62,7 @@ Processed images are saved in a subdirectory named `fastcrop` within your source
 
 ### AI Tools
 
-The code of this app was written by [Kilo Code](https://kilo.ai/) and 
+The code of this app was written using [Kilo Code](https://kilo.ai/) and 
 [Gemma 4](https://ollama.com/library/gemma4:31b-cloud) provided by Ollama cloud 
 based on specifications in the `AGENTS.md` file. 
 The code was reviewed by the owner of the repository.
