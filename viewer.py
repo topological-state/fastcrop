@@ -163,24 +163,25 @@ class FastCropViewer(QMainWindow):
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """Handle keyboard input for navigation and controls."""
-        if event.key() == Qt.Key.Key_Enter or event.key() == Qt.Key.Key_Return:
-            self.handle_save()
-        elif event.key() == Qt.Key.Key_Right:
-            self.handle_next()
-        elif event.key() == Qt.Key.Key_Left:
-            self.handle_prev()
-        elif event.key() == Qt.Key.Key_Home:
-            self.handle_first()
-        elif event.key() == Qt.Key.Key_End:
-            self.handle_last()
-        elif event.key() == Qt.Key.Key_Asterisk:
-            self.cycle_aspect_ratio()
-        elif event.key() == Qt.Key.Key_Plus or event.key() == Qt.Key.Key_Equal:
-            self.zoom(1.2)
-        elif event.key() == Qt.Key.Key_Minus:
-            self.zoom(0.8)
-        else:
-            super().keyPressEvent(event)
+        match event.key():
+            case Qt.Key.Key_Enter | Qt.Key.Key_Return:
+                self.handle_save()
+            case Qt.Key.Key_Right:
+                self.handle_next()
+            case Qt.Key.Key_Left:
+                self.handle_prev()
+            case Qt.Key.Key_Home:
+                self.handle_first()
+            case Qt.Key.Key_End:
+                self.handle_last()
+            case Qt.Key.Key_Asterisk:
+                self.cycle_aspect_ratio()
+            case Qt.Key.Key_Plus | Qt.Key.Key_Equal:
+                self.zoom(1.2)
+            case Qt.Key.Key_Minus:
+                self.zoom(0.8)
+            case _:
+                super().keyPressEvent(event)
 
     def cycle_aspect_ratio(self) -> None:
         """Cycle through the predefined aspect ratio constraints."""
